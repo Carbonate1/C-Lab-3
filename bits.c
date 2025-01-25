@@ -1,6 +1,6 @@
 /*
  *
- * <Please put your name and userid here>
+ * <Brandon Chattha  301579323>
  *
  * bits.c - Source file with your solutions to the Lab.
  *          This is the file you will hand in to your instructor.
@@ -144,7 +144,13 @@ NOTES:
  *   Max ops: 8
  *   Rating: 1
  */
-int bitAnd(int x, int y) { return 0; }
+int bitAnd(int x, int y) {
+   x = ~x;
+   y = ~y;
+   return ~(x | y);
+}
+
+
 /*
  * bitXor - x^y using only ~ and &
  *   Example: bitXor(4, 5) = 1
@@ -152,14 +158,20 @@ int bitAnd(int x, int y) { return 0; }
  *   Max ops: 14
  *   Rating: 1
  */
-int bitXor(int x, int y) { return 0; }
+int bitXor(int x, int y) {
+   return ~(~(x&~y)&~(~x&y));
+}
 /*
  * thirdBits - return word with every third bit (starting from the LSB) set to 1
  *   Legal ops: ! ~ & ^ | + << >>
  *   Max ops: 8
  *   Rating: 1
  */
-int thirdBits(void) { return 0; }
+int thirdBits(void) {
+   return (0b01001001<<24) + (0b00100100<<16) + (0b10010010<<8) + (0b01001001);  
+}
+
+
 /*
  * getByte - Extract byte n from word x
  *   Bytes numbered from 0 (least significant) to 3 (most significant)
@@ -168,7 +180,13 @@ int thirdBits(void) { return 0; }
  *   Max ops: 6
  *   Rating: 2
  */
-int getByte(int x, int n) { return 0; }
+int getByte(int x, int n) {
+   int mask = 0xff<<(n<<3);
+   int result = x & mask;
+   return (result >> (n<<3) & 0xff);
+}
+
+
 /*
  * logicalShift - shift x to the right by n, using a logical shift
  *   Can assume that 0 <= n <= 31
@@ -178,9 +196,13 @@ int getByte(int x, int n) { return 0; }
  *   Rating: 3
  */
 int logicalShift(int x, int n) {
-  int filter;
-  return 0;
+  unsigned int filter = ~0;
+  filter = filter>>n;
+  x = x>>n;
+  return x&filter;
 }
+
+
 /*
  * invert - Return x with the n bits that begin at position p inverted
  *          (i.e., turn 0 into 1 and vice versa) and the rest left
@@ -193,7 +215,13 @@ int logicalShift(int x, int n) {
  *   Max ops: 20
  *   Rating: 3
  */
-int invert(int x, int p, int n) { return 0; }
+int invert(int x, int p, int n) {
+   int mask = (1<<n) - 1;
+   mask = mask << p;
+   return x^mask;
+}
+
+
 /*
  * bang - Compute !x without using !
  *   Examples: bang(3) = 0, bang(0) = 1
@@ -201,7 +229,11 @@ int invert(int x, int p, int n) { return 0; }
  *   Max ops: 12
  *   Rating: 4
  */
-int bang(int x) { return 1; }
+int bang(int x) {
+   unsigned int filter = (x | (~x+1));
+   return ~(filter) >> 31;
+}
+
 
 /*
  * sign - return 1 if positive, 0 if zero, and -1 if negative
@@ -212,7 +244,13 @@ int bang(int x) { return 1; }
  *  Rating: 2
  */
 
-int sign(int x) { return 0; }
+int sign(int x) {
+   int mask = 1<<31;
+   int isNeg = (x&mask)>>30;
+   return (!!x) | isNeg;
+}
+
+
 /*
  * fitsBits - return 1 if x can be represented as an
  *  n-bit, two's complement integer.
@@ -222,11 +260,12 @@ int sign(int x) { return 0; }
  *   Max ops: 15
  *   Rating: 2
  */
-
 int fitsBits(int x, int n) {
-  /* docs */
-  return 0;
+  int min = 1<<(n-1);
+  return (x >= (~min + 1)) && (x < min) | n>>5;
 }
+
+
 /*
  * addOK - Determine if can compute x+y without overflow
  *   Example: addOK(0x80000000,0x80000000) = 0,
@@ -235,8 +274,14 @@ int fitsBits(int x, int n) {
  *   Max ops: 20
  *   Rating: 3
  */
+int addOK(int x, int y) {
+   int sign = (x+y) >> 31;
+   int xSign = x >> 31;
+   int ySign = y >> 31;
+   return !(xSign^sign) | !(ySign^sign);
+}
 
-int addOK(int x, int y) { return 0; }
+
 /*
  * isPower2 - returns 1 if x is a power of 2, and 0 otherwise
  *   Examples: isPower2(5) = 0, isPower2(8) = 1, isPower2(0) = 0
@@ -245,7 +290,12 @@ int addOK(int x, int y) { return 0; }
  *   Max ops: 20
  *   Rating: 4
  */
-int isPower2(int x) { return 0; }
+int isPower2(int x) {
+   int x32 = x>>31;
+   return !x32 & !(x & (x-1)) & !!x;
+}
+
+
 /*
  * floatNegate - Return bit-level equivalent of expression -f for
  *   floating point argument f.
